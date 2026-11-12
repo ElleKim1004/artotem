@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>나를 말하는 한 점 찾기 | ARTOTEM</title>
+<meta name="description" content="8개의 질문으로 찾는 나의 예술 취향 유형. 아르템이 당신을 말하는 한 점을 골라 드려요.">
+<meta property="og:title" content="나를 말하는 한 점 찾기 | ARTOTEM">
+<meta property="og:description" content="8개의 질문, 3분. 나는 어떤 한 점을 곁에 두는 사람일까?">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--br:#1A100F;--lime:#E1FF91;--bg:#F6F1EA;--mut:#7A6B64;--line:#D9CFC4;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--br);font-family:Pretendard,'Apple SD Gothic Neo',sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.wrap{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:20px 20px 40px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);letter-spacing:.06em}
+.top b{color:var(--br);font-weight:800;letter-spacing:.12em}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.on{display:flex;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* intro */
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 0}
+.tag{display:inline-block;background:var(--lime);font-weight:700;font-size:13px;padding:5px 11px;border-radius:999px;align-self:flex-start}
+.hero h1{font-size:36px;line-height:1.3;font-weight:800;margin-top:22px;letter-spacing:-.02em}
+.hero h1 .hl{background:linear-gradient(transparent 58%,var(--lime) 58%)}
+.hero p{font-size:16px;line-height:1.7;color:var(--mut);margin-top:16px}
+.frames{display:flex;gap:10px;margin:34px 0 8px}
+.frames div{flex:1;aspect-ratio:3/4;border-radius:10px;border:6px solid #fff;box-shadow:0 6px 18px rgba(26,16,15,.12)}
+.frames div:nth-child(1){background:linear-gradient(160deg,#E9DCC8,#C8A27C);transform:rotate(-4deg)}
+.frames div:nth-child(2){background:radial-gradient(circle at 50% 40%,#FFE7A3,#E07A3F 70%);transform:translateY(-10px)}
+.frames div:nth-child(3){background:linear-gradient(200deg,#2F5D50,#A9C9A4);transform:rotate(4deg)}
+.btn{display:block;width:100%;background:var(--br);color:#F6EEE2;font-weight:700;font-size:17px;padding:18px;border-radius:14px;text-align:center;text-decoration:none;transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.btn.lime{background:var(--lime);color:var(--br)}
+.btn.line{background:transparent;border:1.5px solid var(--br);color:var(--br)}
+.small{font-size:13px;color:var(--mut);text-align:center;margin-top:12px}
+
+/* quiz */
+.prog{height:6px;background:#E6DDD1;border-radius:9px;margin:18px 0 6px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--br);border-radius:9px;transition:width .4s}
+.qnum{font-size:14px;color:var(--mut);font-weight:600;margin-top:26px}
+.qtext{font-size:24px;line-height:1.42;font-weight:800;margin-top:8px;letter-spacing:-.02em;word-break:keep-all}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+.opt{text-align:left;background:var(--card);border:1.5px solid transparent;border-radius:14px;padding:17px 18px;font-size:16px;line-height:1.5;display:flex;gap:12px;align-items:flex-start;transition:all .15s;word-break:keep-all}
+.opt span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.opt:hover{border-color:var(--br)}
+.opt.pick{background:var(--lime);border-color:var(--br)}
+.back{margin-top:18px;font-size:14px;color:var(--mut);align-self:flex-start;padding:6px 0}
+
+/* loading */
+.load{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px}
+.dot{width:70px;height:90px;border:6px solid #fff;border-radius:8px;box-shadow:0 6px 18px rgba(26,16,15,.15);animation:sw 1.2s ease-in-out infinite;background:var(--lime)}
+@keyframes sw{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.load p{font-size:17px;font-weight:700;line-height:1.6}
+
+/* result */
+.rcard{background:var(--br);color:#F6EEE2;border-radius:22px;padding:26px 24px 24px;margin-top:18px;position:relative;overflow:hidden}
+.rcard .lab{font-size:13px;color:var(--lime);font-weight:700;letter-spacing:.08em}
+.rart{height:190px;border-radius:12px;margin:16px 0 20px;border:8px solid #F6EEE2}
+.rname{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.rline{font-size:16px;line-height:1.6;margin-top:8px;color:#E5D9CC;word-break:keep-all}
+.kw{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.kw span{background:rgba(225,255,145,.14);color:var(--lime);font-size:13px;font-weight:600;padding:5px 10px;border-radius:999px}
+.sec{background:var(--card);border-radius:18px;padding:22px 20px;margin-top:12px}
+.sec h3{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.sec h3 em{font-style:normal;background:var(--lime);font-size:12px;padding:2px 8px;border-radius:6px}
+.sec p,.sec li{font-size:15px;line-height:1.7;word-break:keep-all}
+.sec ul{padding-left:18px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pair .sec{margin-top:0}
+.pair small{display:block;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:6px}
+.pair b{font-size:16px}
+.pair p{font-size:13.5px;line-height:1.55;color:var(--mut);margin-top:4px}
+.bar{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:14px}
+.bar b{width:112px;flex:none;font-weight:600;font-size:13.5px;white-space:nowrap}
+.bar div{flex:1;height:8px;background:var(--bg);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--br);border-radius:9px}
+.bar span{width:38px;text-align:right;color:var(--mut);font-size:13px}
+.cta{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.coupon{border:1.5px dashed var(--br);border-radius:14px;padding:16px;text-align:center;margin-top:14px;background:#FFFDF8}
+.coupon b{font-size:18px}
+.coupon p{font-size:13.5px;color:var(--mut);margin-top:4px;line-height:1.5}
+.row{display:flex;gap:10px}
+.row .btn{font-size:15px;padding:15px}
+.foot{font-size:12px;color:var(--mut);text-align:center;margin-top:26px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--br);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><b>ARTOTEM</b><span>나를 말하는 한 점 찾기</span></div>
+
+  <!-- intro -->
+  <section class="screen on" id="intro">
+    <div class="hero">
+      <span class="tag">무료 취향 진단 · 3분</span>
+      <h1>내 방에 걸린<br>그 한 점이<br><span class="hl">나를 말한다면?</span></h1>
+      <p>8개의 질문에 답하면 당신의 예술 취향 유형과<br>곁에 두면 좋을 한 점을 골라 드려요.</p>
+      <div class="frames"><div></div><div></div><div></div></div>
+    </div>
+    <button class="btn" id="start">나의 한 점 찾기 시작</button>
+    <p class="small">정답은 없어요. 처음 떠오르는 대로 고르세요.</p>
+  </section>
+
+  <!-- quiz -->
+  <section class="screen" id="quiz">
+    <div class="prog"><i id="bar"></i></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <button class="back" id="back">← 이전 질문</button>
+  </section>
+
+  <!-- loading -->
+  <section class="screen" id="loading">
+    <div class="load"><div class="dot"></div><p>당신의 답을 벽에 걸어 보는 중…<br><span style="font-weight:400;color:var(--mut);font-size:15px">어울리는 한 점을 고르고 있어요</span></p></div>
+  </section>
+
+  <!-- result -->
+  <section class="screen" id="result">
+    <div class="rcard" id="rcard">
+      <div class="lab">나를 말하는 한 점 · 나의 유형</div>
+      <div class="rart" id="rart"></div>
+      <div class="rname" id="rname"></div>
+      <div class="rline" id="rline"></div>
+      <div class="kw" id="rkw"></div>
+    </div>
+
+    <div class="sec"><h3>이런 사람이에요</h3><p id="rdesc"></p></div>
+    <div class="sec"><h3><em>추천</em>당신의 첫 한 점</h3><ul id="rpick"></ul></div>
+    <div class="sec"><h3>이 공간에 걸어 보세요</h3><p id="rspace"></p></div>
+
+    <div class="pair">
+      <div class="sec"><small>찰떡 궁합</small><b id="rgood"></b><p id="rgoodw"></p></div>
+      <div class="sec"><small>서로 배울 유형</small><b id="rdiff"></b><p id="rdiffw"></p></div>
+    </div>
+
+    <div class="sec"><h3>나의 취향 분포</h3><div id="rbars"></div></div>
+
+    <div class="cta">
+      <a class="btn" id="go" href="#" target="_blank" rel="noopener">내 유형의 한 점 보러 가기</a>
+      <div class="coupon"><b>첫 한 점 5,000원 할인</b><p>아르템에 가입하고 첫 구매할 때 쿠폰을 쓸 수 있어요.<br>결제 후 3일 안에 출고되는 익스프레스 작품도 있어요.</p></div>
+      <div class="row">
+        <button class="btn lime" id="save">결과 이미지 저장</button>
+        <button class="btn line" id="share">친구에게 공유</button>
+      </div>
+      <button class="btn line" id="retry">다시 해 보기</button>
+    </div>
+    <p class="foot">ARTOTEM · 나를 말하는 한 점.<br>좋아요에서, 소장으로.</p>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<canvas id="cv" width="1080" height="1350" style="display:none"></canvas>
+
+<script>
+const SHOP = 'https://artotem.me';
+const UTM = 'utm_source=hanjeom_test&utm_medium=leadmagnet&utm_campaign=my_one_piece';
+
+const TYPES = {
+  quiet:{name:'고요한 여백가',
+    line:'비워 둔 자리에서 숨을 고르는 사람',
+    kw:['여백','단색','미니멀','차분함'],
+    art:'linear-gradient(160deg,#EFE7DA 0%,#D8CBB6 55%,#B9A88F 100%)',
+    desc:'많은 것보다 꼭 맞는 하나를 고르는 편이에요. 하루 끝에 머리를 비울 수 있는 공간이 중요하고, 오래 봐도 질리지 않는 작품에 마음이 가요. 작품이 말을 걸기보다 곁에서 조용히 함께 있어 주길 바라요.',
+    pick:['색을 덜어낸 추상 회화나 드로잉','결이 살아 있는 단색 도자 오브제','넓은 여백이 있는 작은 판화'],
+    space:'침대 머리맡, 서재 책상 앞처럼 오래 머무는 자리. 액자는 벽 가운데보다 살짝 아래, 눈높이에 맞춰 걸면 더 편안해요.',
+    good:'자연 산책자', goodw:'둘 다 천천히 보는 사람. 같이 가면 전시장에서 오래 머물러요.',
+    diff:'컬러 플레이어', diffw:'한 점의 색이 공간 전체를 바꾸는 경험을 알려 줄 거예요.'},
+  light:{name:'빛을 모으는 사람',
+    line:'따뜻한 불빛 하나로 공간을 바꾸는 사람',
+    kw:['온기','조명','오브제','저녁의 시간'],
+    art:'radial-gradient(circle at 50% 42%,#FFF0B8 0%,#F2B35B 38%,#9A4A22 100%)',
+    desc:'형광등보다 스탠드, 스탠드보다 촛불을 좋아해요. 공간의 분위기는 빛이 만든다고 믿고, 작품도 보는 것보다 함께 쓰는 것에 끌려요. 집에 온 사람이 "여기 편하다"고 말해 줄 때 가장 뿌듯해요.',
+    pick:['빛을 담는 캔들워머·조명 오브제','은은한 색감의 유리·도자 작품','저녁 풍경이나 노을빛 회화'],
+    space:'거실 사이드 테이블, 현관 콘솔처럼 하루를 열고 닫는 자리. 주변 조명을 한 단계 낮추면 작품이 더 살아나요.',
+    good:'이야기 수집가', goodw:'불을 켜 두고 이야기가 길어지는 조합이에요.',
+    diff:'위트 큐레이터', diffw:'진지함 사이에 웃음 한 스푼을 더해 줄 거예요.'},
+  story:{name:'이야기 수집가',
+    line:'작품보다 그 뒤의 이야기에 먼저 반하는 사람',
+    kw:['서사','전통','작가의 손','의미'],
+    art:'linear-gradient(170deg,#21334F 0%,#3E5B7A 45%,#C9A35A 46%,#E7D3A1 100%)',
+    desc:'작품을 볼 때 "누가, 왜 만들었을까"가 먼저 궁금해요. 작가 인터뷰를 끝까지 읽고, 산 물건의 사연을 친구에게 설명하는 걸 좋아해요. 오래 간직할수록 의미가 깊어지는 것들에 끌려요.',
+    pick:['민화·전통 문양을 다시 그린 현대 작품','작가의 작업 과정이 보이는 수공예','한옥·전통 모티프 오브제'],
+    space:'손님이 처음 들어서는 거실 벽, 이야기를 꺼내기 좋은 식탁 옆. 작가 이름을 작은 카드로 곁에 두면 대화가 시작돼요.',
+    good:'빛을 모으는 사람', goodw:'작품 하나로 밤새 이야기할 수 있는 사이예요.',
+    diff:'고요한 여백가', diffw:'말하지 않아도 전해지는 한 점의 힘을 알려 줄 거예요.'},
+  color:{name:'컬러 플레이어',
+    line:'한 점의 색으로 기분을 바꾸는 사람',
+    kw:['강렬한 색','팝','에너지','포인트'],
+    art:'linear-gradient(135deg,#FF5E7E 0%,#FFB347 35%,#E1FF91 65%,#4FB3FF 100%)',
+    desc:'옷장에도 꼭 튀는 색 하나가 있는 사람. 회색 하루에 색을 더하는 게 내 방식이에요. 처음 본 순간 "이거다" 싶은 작품을 고르고, 그 직감이 대체로 맞아요.',
+    pick:['원색이 살아 있는 회화나 판화','대담한 패턴의 패브릭 아트','한 가지 색이 강한 포스터·실크스크린'],
+    space:'하얀 벽 한가운데, 현관 맞은편처럼 눈에 바로 들어오는 자리. 주변을 비워 둘수록 색이 더 커 보여요.',
+    good:'위트 큐레이터', goodw:'함께 있으면 공간이 바로 밝아지는 조합이에요.',
+    diff:'고요한 여백가', diffw:'덜어낼수록 선명해지는 색을 알려 줄 거예요.'},
+  nature:{name:'자연 산책자',
+    line:'집 안에 계절 하나를 들여놓는 사람',
+    kw:['식물','흙과 나무','풍경','계절감'],
+    art:'linear-gradient(185deg,#CFE3C4 0%,#8DB48A 45%,#3E6B55 75%,#2A4537 100%)',
+    desc:'주말에는 걷거나 화분을 돌보는 시간이 좋아요. 손으로 만든 것의 투박한 결, 흙과 나무의 냄새에 마음이 놓여요. 작품도 공간에 스며들어 계절처럼 함께 바뀌길 바라요.',
+    pick:['풍경·식물을 담은 회화','흙의 질감이 남은 핸드메이드 도자','나무·패브릭 소재 오브제'],
+    space:'창가, 식물 옆, 볕이 드는 다이닝 벽. 화분과 같은 높이에 두면 작은 정원처럼 어우러져요.',
+    good:'고요한 여백가', goodw:'말없이 함께 걸어도 편한 사이예요.',
+    diff:'컬러 플레이어', diffw:'자연 속 쨍한 색을 발견하게 해 줄 거예요.'},
+  wit:{name:'위트 큐레이터',
+    line:'벽에도 유머 한 줄이 필요한 사람',
+    kw:['일러스트','캐릭터','유쾌함','반전'],
+    art:'repeating-linear-gradient(45deg,#E1FF91 0 18px,#F6F1EA 18px 36px)',
+    desc:'진지한 것도 좋지만 피식 웃게 만드는 것에 더 약해요. 친구들 사이에서 센스 있는 선물을 고르는 담당이고, 작품도 대화의 첫마디가 되어 주길 바라요.',
+    pick:['위트 있는 일러스트·드로잉','작가의 캐릭터가 담긴 굿즈·오브제','작은 사이즈로 여러 점을 모으는 시리즈'],
+    space:'작업 책상, 주방 선반, 화장실 벽처럼 의외의 자리. 작은 액자 여러 개를 모아 걸면 나만의 전시가 돼요.',
+    good:'컬러 플레이어', goodw:'만나면 웃음과 색이 두 배가 되는 조합이에요.',
+    diff:'빛을 모으는 사람', diffw:'오래 곁에 두는 따뜻함을 알려 줄 거예요.'}
+};
+
+const Q = [
+  {q:'퇴근하고 집에 들어선 순간, 가장 먼저 하고 싶은 건?', o:[
+    ['불을 낮추고 조용히 앉아 숨 고르기',{quiet:2,light:1}],
+    ['스탠드랑 캔들부터 켜기',{light:2,nature:1}],
+    ['음악 크게 틀고 옷 갈아입기',{color:2,wit:1}],
+    ['창문 열고 화분에 물 주기',{nature:2,quiet:1}]]},
+  {q:'친구 집들이에 갔어요. 눈에 가장 오래 남는 건?', o:[
+    ['벽에 걸린 커다란 그림 한 점',{color:2,story:1}],
+    ['식탁 위 손으로 빚은 그릇',{nature:2,story:1}],
+    ['아무것도 없이 깔끔한 거실',{quiet:2}],
+    ['화장실에 붙은 웃긴 포스터',{wit:2,color:1}]]},
+  {q:'여행지에서 꼭 사 오는 기념품은?', o:[
+    ['그 동네 작가가 만든 작은 작품',{story:2,nature:1}],
+    ['현지 시장에서 찾은 향초나 조명',{light:2}],
+    ['엽서 몇 장. 짐은 가볍게',{quiet:2,wit:1}],
+    ['색이 예뻐서 산 패브릭이나 컵',{color:2,light:1}]]},
+  {q:'전시회에서 나는 주로…', o:[
+    ['작품 설명과 작가 이야기를 꼼꼼히 읽는다',{story:2}],
+    ['마음에 드는 한 점 앞에 오래 서 있다',{quiet:2,nature:1}],
+    ['사진 찍고 싶은 작품을 먼저 찾는다',{color:2,wit:1}],
+    ['굿즈샵이 사실 제일 재밌다',{wit:2,light:1}]]},
+  {q:'지금 내 방에 하나 더한다면?', o:[
+    ['따뜻한 빛을 내는 오브제',{light:2}],
+    ['초록 식물과 흙 냄새',{nature:2}],
+    ['눈이 번쩍 뜨이는 색의 그림',{color:2}],
+    ['볼 때마다 웃음 나는 작은 액자',{wit:2}]]},
+  {q:'나를 색 하나로 말한다면?', o:[
+    ['아이보리, 혹은 아주 옅은 회색',{quiet:2}],
+    ['호박색, 노을빛 오렌지',{light:2,story:1}],
+    ['쨍한 라임이나 핫핑크',{color:2,wit:1}],
+    ['깊은 숲의 초록',{nature:2,story:1}]]},
+  {q:'소중한 사람에게 선물한다면 어떤 걸 고를까?', o:[
+    ['사연이 담긴, 하나뿐인 핸드메이드',{story:2,nature:1}],
+    ['받자마자 웃게 되는 센스 있는 것',{wit:2}],
+    ['매일 밤 켜 둘 수 있는 무드등',{light:2}],
+    ['오래 써도 질리지 않는 단정한 것',{quiet:2}]]},
+  {q:'마지막 질문. 10년 뒤에도 내 곁에 있었으면 하는 작품은?', o:[
+    ['볼 때마다 그때의 이야기가 떠오르는 것',{story:2}],
+    ['계절이 바뀌어도 늘 편안한 것',{nature:2,quiet:1}],
+    ['지금 봐도, 그때 봐도 설레는 것',{color:2,light:1}],
+    ['보는 사람마다 한마디씩 하게 되는 것',{wit:2,story:1}]]}
+];
+
+const $ = id => document.getElementById(id);
+let idx = 0, answers = [], resultKey = null, scoreCache = null;
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)}
+
+function renderQ(){
+  const item = Q[idx];
+  $('bar').style.width = (idx/Q.length*100)+'%';
+  $('qnum').textContent = `Q${idx+1} / ${Q.length}`;
+  $('qtext').textContent = item.q;
+  $('opts').innerHTML = '';
+  item.o.forEach((o,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt' + (answers[idx]===i?' pick':'');
+    b.innerHTML = `<span>${'ABCD'[i]}</span><div>${o[0]}</div>`;
+    b.onclick = ()=>{ answers[idx]=i; b.classList.add('pick'); setTimeout(next,220); };
+    $('opts').appendChild(b);
+  });
+  $('back').style.visibility = idx===0?'hidden':'visible';
+}
+function next(){ if(idx<Q.length-1){idx++;renderQ()} else finish(); }
+
+function score(){
+  const s = {quiet:0,light:0,story:0,color:0,nature:0,wit:0};
+  answers.forEach((a,i)=>{ const w=Q[i].o[a][1]; for(const k in w) s[k]+=w[k]; });
+  return s;
+}
+function finish(){
+  $('bar').style.width='100%';
+  show('loading');
+  scoreCache = score();
+  const order = ['story','light','color','nature','quiet','wit']; // 동점일 때 우선순위
+  resultKey = order.reduce((a,b)=> scoreCache[b]>scoreCache[a]?b:a);
+  try{ history.replaceState(null,'','#'+resultKey) }catch(e){}
+  setTimeout(()=>renderResult(resultKey,scoreCache),1600);
+}
+
+function renderResult(key,s){
+  const t = TYPES[key];
+  $('rart').style.background = t.art;
+  $('rname').textContent = t.name;
+  $('rline').textContent = t.line;
+  $('rkw').innerHTML = t.kw.map(k=>`<span>#${k}</span>`).join('');
+  $('rdesc').textContent = t.desc;
+  $('rpick').innerHTML = t.pick.map(p=>`<li>${p}</li>`).join('');
+  $('rspace').textContent = t.space;
+  $('rgood').textContent = t.good; $('rgoodw').textContent = t.goodw;
+  $('rdiff').textContent = t.diff; $('rdiffw').textContent = t.diffw;
+  if(s){
+    const tot = Object.values(s).reduce((a,b)=>a+b,0)||1;
+    $('rbars').innerHTML = Object.keys(TYPES).sort((a,b)=>s[b]-s[a]).map(k=>{
+      const p = Math.round(s[k]/tot*100);
+      return `<div class="bar"><b>${TYPES[k].name}</b><div><i style="width:${p}%;${k===key?'background:#1A100F':'background:#B9AEA6'}"></i></div><span>${p}%</span></div>`;
+    }).join('');
+    $('rbars').parentElement.style.display='';
+  } else $('rbars').parentElement.style.display='none';
+  $('go').href = `${SHOP}/?${UTM}&utm_content=${key}`;
+  show('result');
+}
+
+/* save result as image (1080x1350, Instagram 4:5) */
+function wrap(ctx,text,x,y,maxW,lh){
+  let line='';const out=[];
+  for(const ch of text){ const t=line+ch; if(ctx.measureText(t).width>maxW && line){out.push(line);line=ch} else line=t; }
+  out.push(line); out.forEach((l,i)=>ctx.fillText(l,x,y+i*lh)); return y+out.length*lh;
+}
+function saveImage(){
+  const t = TYPES[resultKey], c=$('cv'), x=c.getContext('2d');
+  const F = "Pretendard, 'Apple SD Gothic Neo', sans-serif";
+  x.fillStyle='#1A100F'; x.fillRect(0,0,1080,1350);
+  x.fillStyle='#E1FF91'; x.font=`700 34px ${F}`; x.fillText('ARTOTEM',80,110);
+  x.fillStyle='#B7A99F'; x.font=`500 30px ${F}`; x.textAlign='right'; x.fillText('나를 말하는 한 점 찾기',1000,110); x.textAlign='left';
+  // frame
+  x.fillStyle='#F6EEE2'; x.fillRect(80,170,920,520);
+  const cols = (t.art.match(/#[0-9A-Fa-f]{6}/g)||['#E1FF91']);
+  const lg = x.createLinearGradient(100,190,980,670);
+  cols.forEach((cc,i)=>lg.addColorStop(cols.length===1?0:i/(cols.length-1),cc));
+  x.fillStyle=lg; x.fillRect(100,190,880,480);
+  x.fillStyle='#E1FF91'; x.font=`700 32px ${F}`; x.fillText('나의 유형',80,770);
+  x.fillStyle='#F6EEE2'; x.font=`800 84px ${F}`; x.fillText(t.name,80,870);
+  x.fillStyle='#E5D9CC'; x.font=`500 38px ${F}`; let y = wrap(x,t.line,80,940,920,54);
+  x.fillStyle='#E1FF91'; x.font=`600 32px ${F}`; x.fillText(t.kw.map(k=>'#'+k).join('  '),80,y+30);
+  x.fillStyle='#B7A99F'; x.font=`500 28px ${F}`; x.fillText('추천 첫 한 점 · '+t.pick[0],80,y+110);
+  x.fillStyle='#E1FF91'; x.fillRect(80,1200,920,4);
+  x.fillStyle='#F6EEE2'; x.font=`700 34px ${F}`; x.fillText('나를 말하는 한 점. 좋아요에서, 소장으로.',80,1270);
+  const a=document.createElement('a'); a.download=`나를말하는한점_${t.name}.png`; a.href=c.toDataURL('image/png'); a.click();
+  toast('이미지를 저장했어요. 인스타 스토리에 공유해 보세요!');
+}
+async function share(){
+  const t = TYPES[resultKey];
+  const url = location.href.split('#')[0];
+  const text = `나를 말하는 한 점 유형은 「${t.name}」 — ${t.line}. 너는 어떤 한 점일까?`;
+  try{
+    if(navigator.share){ await navigator.share({title:'나를 말하는 한 점 찾기',text,url}); return; }
+    await navigator.clipboard.writeText(text+' '+url); toast('링크를 복사했어요');
+  }catch(e){}
+}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+
+$('start').onclick=()=>{idx=0;answers=[];show('quiz');renderQ()};
+$('back').onclick=()=>{if(idx>0){idx--;renderQ()}};
+$('retry').onclick=()=>{idx=0;answers=[];try{history.replaceState(null,'',location.pathname)}catch(e){};show('intro')};
+$('save').onclick=saveImage;
+$('share').onclick=share;
+
+// 공유 링크로 들어오면 (#color 등) 해당 유형 결과 바로 보기
+const h = location.hash.slice(1);
+if(TYPES[h]){ resultKey=h; renderResult(h,null); }
+</script>
+</body>
+</html>
