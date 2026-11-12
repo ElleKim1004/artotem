@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 한 점 찾기 · ARTOTEM</title>
+<meta name="description" content="질문 8개로 알아보는 나의 취향 유형과 어울리는 아르템 작품">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: one centered phone-width column; three screens (intro → 8 questions → result) swap in place */
+:root{
+  --bg:#F7F8F0; --card:#FFFFFF; --ink:#1A100F; --muted:#6F6866; --line:#DEDCCF;
+  --lime:#E1FF91; --onlime:#1A100F; --soft:#EEF6D6; --pick:#1A100F; --onpick:#E1FF91;
+  color-scheme:light;
+  --font:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1A100F; --card:#251A18; --ink:#F3F1EA; --muted:#A8A2A0; --line:#3A302C;
+  --soft:#2F2A1C; --pick:#E1FF91; --onpick:#1A100F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1A100F; --card:#251A18; --ink:#F3F1EA; --muted:#A8A2A0; --line:#3A302C;
+  --soft:#2F2A1C; --pick:#E1FF91; --onpick:#1A100F; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body,h1,h2,p,span,dd,button{word-break:keep-all;overflow-wrap:anywhere}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:560px;margin:0 auto}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
+.brand .word{font-size:22px;font-weight:900;letter-spacing:.12em}
+.brand span{font-size:12px;letter-spacing:.08em;color:var(--muted)}
+h1{font-size:clamp(34px,9vw,48px);font-weight:900;line-height:1.15;letter-spacing:-.03em;margin:0 0 14px;text-wrap:balance}
+h1 mark{background:linear-gradient(transparent 55%,var(--lime) 55%);color:inherit;padding:0 2px}
+.lead{color:var(--muted);margin:0 0 26px;max-width:36em}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.meta span{font-size:13px;border:1px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted)}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 30px}
+.tchip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:14px;font-weight:700;min-width:0}
+.dots{display:flex;flex:none}.dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--card);margin-left:-5px}.dots i:first-child{margin-left:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:99px;padding:15px 26px;font:700 16px var(--font);cursor:pointer;text-decoration:none}
+.btn-main{background:var(--lime);color:var(--onlime);width:100%}
+.btn-line{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.note{font-size:12px;color:var(--muted);margin-top:14px;text-align:center}
+/* quiz */
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.bar b{display:block;height:100%;background:var(--ink);border-radius:99px;transition:width .35s ease}
+.step{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:22px;font-variant-numeric:tabular-nums}
+.step button{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0}
+.q{font-size:clamp(24px,6.4vw,30px);font-weight:900;line-height:1.3;letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:18px 16px;text-align:left;cursor:pointer;font:500 15px/1.45 var(--font);color:var(--ink);min-height:120px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;transition:transform .12s ease,border-color .12s ease}
+.opt:hover{border-color:var(--ink);transform:translateY(-2px)}
+.opt.on{background:var(--pick);color:var(--onpick);border-color:var(--pick)}
+.opt .k{font-size:12px;font-weight:700;color:var(--muted)}
+.opt.on .k{color:inherit;opacity:.7}
+.opt .sw{display:flex;gap:6px}.opt .sw i{width:28px;height:28px;border-radius:8px;border:1px solid rgba(0,0,0,.08)}
+/* result */
+.badge{display:inline-block;background:var(--lime);color:var(--onlime);font-size:13px;font-weight:700;border-radius:99px;padding:4px 12px;margin-bottom:14px}
+.rname{font-size:clamp(32px,8.6vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.rsub{color:var(--muted);margin:0 0 22px}
+.palette{display:flex;height:64px;border-radius:16px;overflow:hidden;margin-bottom:22px}
+.palette i{flex:1}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:12px}
+.sec h3{font-size:13px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px;font-weight:700}
+.sec p{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{background:var(--soft);border-radius:99px;padding:5px 12px;font-size:14px;font-weight:500}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:500;min-width:0}
+.rows{display:grid;gap:9px}
+.row{display:grid;grid-template-columns:9em 1fr 2.8em;align-items:center;gap:10px;font-size:13px}
+.row .track{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.row .track b{display:block;height:100%;background:var(--ink);border-radius:99px}
+.row.top .track b{background:var(--lime);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.row em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.slogan{text-align:center;font-size:22px;font-weight:900;letter-spacing:-.02em;margin:26px 0 18px}
+.actions{display:grid;gap:10px}
+.actions .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.share{font-size:13px;color:var(--muted);background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:10px;word-break:keep-all;user-select:all}
+.fade{animation:in .35s ease both}
+@keyframes in{from{opacity:.0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.fade{animation:none}.bar b{transition:none}.opt{transition:none}}
+@media (max-width:380px){.opts{grid-template-columns:1fr}.opt{min-height:0}.types{grid-template-columns:1fr}.row{grid-template-columns:8.2em 1fr 2.6em;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <b class="word">ARTOTEM</b>
+    <span>취향 맞춤 아트 셀렉트숍</span>
+  </div>
+
+  <section id="intro" class="fade">
+    <h1>나를 말하는 <mark>한 점</mark>,<br>어떤 작품일까요?</h1>
+    <p class="lead">질문 8개에 답하면 나의 취향 유형과 어울리는 작품, 둘 자리, 첫 한 점의 가격대를 알려드려요.</p>
+    <div class="meta"><span>질문 8개</span><span>약 1분</span><span>답변은 저장되지 않아요</span></div>
+    <div class="types" id="typeList"></div>
+    <button class="btn btn-main" id="startBtn" type="button">나의 한 점 찾기 시작</button>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="bar"><b id="barFill"></b></div>
+    <div class="step"><button type="button" id="backBtn">← 이전</button><span id="stepTxt">1 / 8</span></div>
+    <div id="qBox" class="fade"></div>
+  </section>
+
+  <section id="result" hidden></section>
+</div>
+
+<script>
+const TYPES = {
+  clay:  {name:'고요한 흙의 수집가', line:'손으로 빚은 질감과 차분한 색에 마음이 가요.',
+          desc:'매일 손에 닿는 물건에서 작가의 손길을 느끼고 싶은 사람이에요. 화려함보다 오래 봐도 질리지 않는 형태를 골라요.',
+          keys:['핸드메이드','뉴트럴 톤','매일 쓰는 작품','도자기'], pal:['#EDE6DA','#CBB89D','#8C7B6B'],
+          picks:'도자기 머그 · 화병 · 세라믹 오브제', place:'식탁, 주방 선반', ex:'이해지 작가 Silver Trace Mug처럼 흙의 표정이 살아 있는 머그'},
+  light: {name:'빛을 모으는 사람', line:'공간의 분위기는 빛이 정한다고 믿어요.',
+          desc:'같은 방도 저녁이 되면 다른 곳이 되는 순간을 좋아해요. 켜 두기만 해도 공기가 달라지는 작품이 잘 어울려요.',
+          keys:['무드','유리','따뜻한 빛','저녁의 방'], pal:['#FFF4D6','#F2C14E','#C9772E'],
+          picks:'작가 조명 · 유리 오브제 · 캔들 홀더', place:'침대 옆 협탁, 창가', ex:'아르템 큐레이션 「조명.zip」의 작가 조명'},
+  color: {name:'컬러 플레이어', line:'보는 순간 웃음이 나는 색과 형태를 골라요.',
+          desc:'공간에 내 기분을 크게 말하는 편이에요. 대담한 색, 엉뚱한 형태, 반짝이는 표면이 있는 작품에서 에너지를 얻어요.',
+          keys:['비비드','팝','유머','반짝임'], pal:['#FF5A5F','#3D5AFE','#E1FF91'],
+          picks:'팝 오브제 · 비비드 회화 · 아트 포스터', place:'현관, 책상, 거실 선반', ex:'에고인사이드의 EGO HEAD 03A처럼 존재감 있는 오브제'},
+  tiny:  {name:'작은 사치 큐레이터', line:'손바닥만 한 물건 하나로 하루가 달라져요.',
+          desc:'큰 변화보다 매일 눈에 들어오는 작은 기쁨을 모아요. 부담 없이 나를 위해 고르는 첫 한 점으로 시작하기 좋아요.',
+          keys:['미니 오브제','나를 위한 선물','부담 없는 가격','데스크테리어'], pal:['#F6E7C8','#D8C3E8','#A7C7A1'],
+          picks:'미니 오브제 · 트레이 · 작은 바구니', place:'책상 위, 침대 협탁', ex:'오브오브제의 mini basket처럼 작은 물건을 담는 오브제'},
+  story: {name:'이야기 수집가', line:'물건에 담긴 서사와 시간을 먼저 봐요.',
+          desc:'왜 이 작품이 만들어졌는지 알 때 더 오래 아끼는 사람이에요. 전통 모티프나 작가의 연작처럼 맥락이 있는 작품이 잘 맞아요.',
+          keys:['서사','전통 모티프','연작','작가 인터뷰'], pal:['#E9DFC8','#B23A2E','#24345C'],
+          picks:'전통 모티프 오브제 · 작가 연작 · 에디션', place:'거실 선반, 서재', ex:'아르템 큐레이션 「전통 굿즈 모음 zip」의 오브제'},
+  wall:  {name:'벽의 주인공', line:'한 점으로 공간 전체의 인상을 바꾸고 싶어요.',
+          desc:'방에 들어서자마자 눈에 들어오는 한 장면을 원해요. 크기와 여백을 함께 생각하는 회화나 판화가 잘 어울려요.',
+          keys:['회화','여백','시선이 머무는 곳','에디션'], pal:['#F3F1EA','#9A948C','#1A100F'],
+          picks:'회화 · 드로잉 · 판화와 에디션', place:'거실 벽, 침실 벽', ex:'아르템 단독 넘버링 에디션'}
+};
+const ORDER = ['clay','light','color','tiny','story','wall'];
+
+const QS = [
+  {q:'주말 오후, 발길이 향하는 곳은?', o:[
+    ['햇살 드는 공방 카페',{clay:2,tiny:1}], ['해 질 녘 조용한 루프탑',{light:2,wall:1}],
+    ['성수동 팝업 스토어',{color:2,tiny:1}], ['오래된 골목의 고서점',{story:2,wall:1}]]},
+  {q:'지금 내 방에 딱 하나를 더한다면?', o:[
+    ['손으로 빚은 화병',{clay:2}], ['은은한 무드등',{light:2}],
+    ['벽을 채우는 그림 한 점',{wall:2}], ['책상 위 작은 오브제',{tiny:2}]]},
+  {q:'가장 끌리는 색 조합은?', sw:true, o:[
+    ['오트밀 · 모래 · 흙',{clay:2,tiny:1},['#EDE6DA','#CBB89D','#8C7B6B']],
+    ['꿀 · 호박 · 크림',{light:2},['#FFF4D6','#F2C14E','#C9772E']],
+    ['체리 · 코발트 · 라임',{color:2},['#FF5A5F','#3D5AFE','#E1FF91']],
+    ['한지 · 주홍 · 남색',{story:2,wall:1},['#E9DFC8','#B23A2E','#24345C']]]},
+  {q:'손끝에 닿았을 때 좋은 질감은?', o:[
+    ['까끌한 흙',{clay:2}], ['매끈한 유리',{light:2}],
+    ['반짝이는 에나멜',{color:2}], ['촘촘한 짜임과 나무',{tiny:2,story:1}]]},
+  {q:'작품을 고를 때 가장 먼저 보는 것은?', o:[
+    ['매일 쓸 수 있는가',{clay:1,tiny:2}], ['공간의 분위기를 바꾸는가',{light:1,wall:2}],
+    ['보자마자 기분이 좋아지는가',{color:2}], ['작가의 이야기가 있는가',{story:2}]]},
+  {q:'좋아하는 친구에게 선물한다면?', o:[
+    ['매일 쓰는 머그잔',{clay:2}], ['잠들기 전 켜는 조명',{light:2}],
+    ['보고 웃게 되는 오브제',{color:2}], ['의미를 담은 전통 소품',{story:2}]]},
+  {q:'새 작품을 둘 자리는?', o:[
+    ['식탁이나 주방 선반',{clay:2}], ['침대 옆 협탁',{light:2,tiny:1}],
+    ['거실 한쪽 벽',{wall:2}], ['매일 앉는 책상 위',{tiny:2,color:1}]]},
+  {q:'나의 첫 한 점, 예산은?', budget:true, o:[
+    ['3만 원 이하',{tiny:2}], ['3~10만 원',{clay:1,light:1,color:1}],
+    ['10~30만 원',{story:1,color:1,light:1}], ['30만 원 이상',{wall:2}]]}
+];
+
+const $ = id => document.getElementById(id);
+let answers = new Array(QS.length).fill(null);
+let cur = 0;
+
+$('typeList').innerHTML = ORDER.map(k => {
+  const t = TYPES[k];
+  return `<div class="tchip"><span class="dots">${t.pal.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span>${t.name}</span></div>`;
+}).join('');
+
+function show(id){ ['intro','quiz','result'].forEach(s => $(s).hidden = (s !== id)); window.scrollTo({top:0}); }
+
+function renderQ(){
+  const Q = QS[cur];
+  $('barFill').style.width = ((cur)/QS.length*100) + '%';
+  $('stepTxt').textContent = `${cur+1} / ${QS.length}`;
+  $('backBtn').style.visibility = cur === 0 ? 'hidden' : 'visible';
+  const box = $('qBox');
+  box.classList.remove('fade'); void box.offsetWidth; box.classList.add('fade');
+  box.innerHTML = `<h2 class="q">${Q.q}</h2><div class="opts">` + Q.o.map((o,i) => {
+    const on = answers[cur] === i ? ' on' : '';
+    const sw = o[2] ? `<span class="sw">${o[2].map(c=>`<i style="background:${c}"></i>`).join('')}</span>` : '';
+    return `<button type="button" class="opt${on}" id="q${cur}o${i}" data-i="${i}">${sw}<span>${o[0]}</span><span class="k">${String.fromCharCode(65+i)}</span></button>`;
+  }).join('') + `</div>`;
+  box.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => pick(+b.dataset.i)));
+}
+
+function pick(i){
+  answers[cur] = i;
+  document.querySelectorAll('.opt').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  setTimeout(() => {
+    if (cur < QS.length - 1) { cur++; renderQ(); }
+    else { $('barFill').style.width = '100%'; renderResult(); }
+  }, 220);
+}
+
+function score(){
+  const s = Object.fromEntries(ORDER.map(k => [k,0]));
+  answers.forEach((a,qi) => { if (a === null) return; const pts = QS[qi].o[a][1]; for (const k in pts) s[k] += pts[k]; });
+  return s;
+}
+
+function renderResult(){
+  const s = score();
+  const ranked = [...ORDER].sort((a,b) => s[b]-s[a] || ORDER.indexOf(a)-ORDER.indexOf(b));
+  const top = TYPES[ranked[0]], sub = TYPES[ranked[1]];
+  const max = Math.max(...Object.values(s)) || 1;
+  const total = Object.values(s).reduce((x,y)=>x+y,0) || 1;
+  const budget = QS[QS.length-1].o[answers[QS.length-1]][0];
+  const shareTxt = `나를 말하는 한 점은 '${top.name}' 유형이래요. 아르템 「나의 한 점 찾기」로 알아봤어요 → artotem.me`;
+  $('result').innerHTML = `
+    <div class="fade">
+      <span class="badge">나의 한 점 유형</span>
+      <h2 class="rname">${top.name}</h2>
+      <p class="rsub">${top.line}</p>
+      <div class="palette">${top.pal.map(c=>`<i style="background:${c}"></i>`).join('')}</div>
+      <div class="sec"><h3>이런 사람이에요</h3><p>${top.desc}</p>
+        <div class="chips" style="margin-top:14px">${top.keys.map(k=>`<span>#${k}</span>`).join('')}</div></div>
+      <div class="sec"><h3>어울리는 한 점</h3>
+        <dl class="kv"><dt>작품</dt><dd>${top.picks}</dd><dt>둘 자리</dt><dd>${top.place}</dd><dt>첫 예산</dt><dd>${budget}</dd><dt>예를 들면</dt><dd>${top.ex}</dd></dl></div>
+      <div class="sec"><h3>나의 취향 분포</h3><div class="rows">${ranked.map((k,i)=>`
+        <div class="row${i===0?' top':''}"><span>${TYPES[k].name}</span><span class="track"><b style="width:${s[k]/max*100}%"></b></span><em>${Math.round(s[k]/total*100)}%</em></div>`).join('')}</div>
+        <p style="margin-top:14px;font-size:14px;color:var(--muted)">두 번째 취향은 <b style="color:var(--ink)">${sub.name}</b>예요. ${sub.picks.split(' · ')[0]}도 함께 둘러보세요.</p></div>
+      <p class="slogan">나를 말하는 한 점, 이제 찾으러 가요.</p>
+      <div class="actions">
+        <a class="btn btn-main" href="https://artotem.me" target="_blank" rel="noopener">아르템에서 ${top.picks.split(' · ')[0]} 보기</a>
+        <div class="two">
+          <button class="btn btn-line" type="button" id="copyBtn">결과 문구 복사</button>
+          <button class="btn btn-line" type="button" id="againBtn">다시 하기</button>
+        </div>
+        <div class="share" id="shareTxt">${shareTxt}</div>
+      </div>
+      <p class="note">취향 유형은 재미로 보는 결과예요. 답변은 이 화면에서만 계산되고 어디에도 저장되지 않아요.</p>
+    </div>`;
+  show('result');
+  $('againBtn').onclick = () => { answers.fill(null); cur = 0; show('intro'); };
+  $('copyBtn').onclick = () => {
+    const b = $('copyBtn');
+    const done = () => { b.textContent = '복사했어요'; setTimeout(()=>b.textContent='결과 문구 복사',1600); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($('shareTxt')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = '문구를 길게 눌러 복사하세요'; };
+    try { navigator.clipboard.writeText(shareTxt).then(done, fallback); } catch(e){ fallback(); }
+  };
+}
+
+$('startBtn').onclick = () => { cur = 0; show('quiz'); renderQ(); };
+$('backBtn').onclick = () => { if (cur > 0) { cur--; renderQ(); } };
+</script>
+</body>
+</html>
